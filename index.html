@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DynamoDB Authentication</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
+        form { display: inline-block; text-align: left; padding: 20px; border: 1px solid #ccc; border-radius: 8px; background: #f9f9f9; }
+        input, button { width: 100%; margin: 5px 0; padding: 10px; font-size: 16px; }
+        .message { margin-top: 10px; color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+
+    <h2>DynamoDB Authentication</h2>
+
+    <h3>Sign Up</h3>
+    <form id="signupForm">
+        <input type="email" id="signupEmail" placeholder="Email" required>
+        <input type="password" id="signupPassword" placeholder="Password" required>
+        <button type="submit">Sign Up</button>
+        <p class="message" id="signupMessage"></p>
+    </form>
+
+    <h3>Login</h3>
+    <form id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email" required>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <button type="submit">Login</button>
+        <p class="message" id="loginMessage"></p>
+    </form>
+
+    <script>
+        async function handleFormSubmit(event, formId, apiUrl, messageId) {
+            event.preventDefault();
+            const form = document.getElementById(formId);
+            const formData = new FormData(form);
+            const jsonData = {};
+            formData.forEach((value, key) => jsonData[key] = value);
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(jsonData)
+                });
+
+                const result = await response.json();
+                document.getElementById(messageId).innerText = result.message || result.error;
+                document.getElementById(messageId).classList.toggle("error", !response.ok);
+            } catch (error) {
+                document.getElementById(messageId).innerText = "An error occurred";
+                document.getElementById(messageId).classList.add("error");
+            }
+        }
+
+        document.getElementById("signupForm").addEventListener("submit", (event) => 
+            handleFormSubmit(event, "signupForm", "/signup", "signupMessage"));
+
+        document.getElementById("loginForm").addEventListener("submit", (event) => 
+            handleFormSubmit(event, "loginForm", "/login", "loginMessage"));
+    </script>
+
+</body>
+</html>
